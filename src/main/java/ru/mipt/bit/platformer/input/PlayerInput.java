@@ -1,17 +1,15 @@
 package ru.mipt.bit.platformer.input;
 
 import com.badlogic.gdx.Input;
-import ru.mipt.bit.platformer.model.Direction;
-
-import java.util.Optional;
+import java.util.EnumSet;
 
 public final class PlayerInput {
 
     private static final KeyBinding[] KEY_BINDINGS = {
-            new KeyBinding(Direction.UP, Input.Keys.UP, Input.Keys.W),
-            new KeyBinding(Direction.LEFT, Input.Keys.LEFT, Input.Keys.A),
-            new KeyBinding(Direction.DOWN, Input.Keys.DOWN, Input.Keys.S),
-            new KeyBinding(Direction.RIGHT, Input.Keys.RIGHT, Input.Keys.D)
+            new KeyBinding(PlayerAction.MOVE_UP, Input.Keys.UP, Input.Keys.W),
+            new KeyBinding(PlayerAction.MOVE_LEFT, Input.Keys.LEFT, Input.Keys.A),
+            new KeyBinding(PlayerAction.MOVE_DOWN, Input.Keys.DOWN, Input.Keys.S),
+            new KeyBinding(PlayerAction.MOVE_RIGHT, Input.Keys.RIGHT, Input.Keys.D)
     };
 
     private final Input input;
@@ -20,33 +18,37 @@ public final class PlayerInput {
         this.input = input;
     }
 
-    public Optional<Direction> getRequestedDirection() {
+    public EnumSet<PlayerAction> getPressedActions() {
+        EnumSet<PlayerAction> actions = EnumSet.noneOf(PlayerAction.class);
         for (KeyBinding keyBinding : KEY_BINDINGS) {
             if (keyBinding.isPressed(input)) {
-                return Optional.of(keyBinding.getDirection());
+                actions.add(keyBinding.getAction());
             }
         }
-        return Optional.empty();
+        return actions;
     }
 
     private static final class KeyBinding {
 
-        private final Direction direction;
-        private final int primaryKey;
-        private final int alternativeKey;
+        private final PlayerAction action;
+        private final int[] keys;
 
-        private KeyBinding(Direction direction, int primaryKey, int alternativeKey) {
-            this.direction = direction;
-            this.primaryKey = primaryKey;
-            this.alternativeKey = alternativeKey;
+        private KeyBinding(PlayerAction action, int... keys) {
+            this.action = action;
+            this.keys = keys;
         }
 
         private boolean isPressed(Input input) {
-            return input.isKeyPressed(primaryKey) || input.isKeyPressed(alternativeKey);
+            for (int key : keys) {
+                if (input.isKeyPressed(key)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
-        private Direction getDirection() {
-            return direction;
+        private PlayerAction getAction() {
+            return action;
         }
     }
 }

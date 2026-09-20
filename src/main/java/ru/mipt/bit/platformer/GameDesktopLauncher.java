@@ -4,22 +4,15 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.math.GridPoint2;
 import ru.mipt.bit.platformer.controller.PlayerTankController;
 import ru.mipt.bit.platformer.controller.TankController;
 import ru.mipt.bit.platformer.input.PlayerInput;
 import ru.mipt.bit.platformer.model.GameWorld;
-import ru.mipt.bit.platformer.model.Obstacle;
-import ru.mipt.bit.platformer.model.Tank;
 import ru.mipt.bit.platformer.render.GameRenderer;
 
 import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
 
-import java.util.Collections;
-
 public class GameDesktopLauncher implements ApplicationListener {
-
-    private static final float MOVEMENT_SPEED = 0.4f;
 
     private GameWorld gameWorld;
     private TankController tankController;
@@ -27,9 +20,7 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     @Override
     public void create() {
-        Tank tank = new Tank(new GridPoint2(1, 1), MOVEMENT_SPEED);
-        Obstacle tree = new Obstacle(new GridPoint2(1, 3));
-        gameWorld = new GameWorld(tank, Collections.singletonList(tree));
+        gameWorld = new GameWorld();
         tankController = new PlayerTankController(new PlayerInput(Gdx.input));
         gameRenderer = new GameRenderer();
     }
