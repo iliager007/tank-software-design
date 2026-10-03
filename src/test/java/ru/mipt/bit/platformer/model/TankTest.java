@@ -3,7 +3,8 @@ package ru.mipt.bit.platformer.model;
 import com.badlogic.gdx.math.GridPoint2;
 import org.junit.Test;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -13,7 +14,7 @@ public class TankTest {
     public void movesToDestinationWhenStepCompletes() {
         Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
 
-        tank.tryMove(Direction.RIGHT, Collections.emptyList());
+        move(tank, Direction.RIGHT);
         assertEquals(new GridPoint2(1, 1), tank.getCurrentCoordinates());
         assertEquals(new GridPoint2(2, 1), tank.getDestinationCoordinates());
         assertEquals(0f, tank.getMovementProgress(), 0f);
@@ -33,7 +34,7 @@ public class TankTest {
         Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
         Obstacle obstacle = new Obstacle(new GridPoint2(1, 2));
 
-        tank.tryMove(Direction.UP, Collections.singletonList(obstacle));
+        move(tank, Direction.UP, obstacle);
 
         assertEquals(new GridPoint2(1, 1), tank.getDestinationCoordinates());
         assertEquals(1f, tank.getMovementProgress(), 0f);
@@ -43,9 +44,9 @@ public class TankTest {
     @Test
     public void ignoresNewMoveWhileAlreadyMoving() {
         Tank tank = new Tank(new GridPoint2(1, 1), 0.4f);
-        tank.tryMove(Direction.UP, Collections.emptyList());
+        move(tank, Direction.UP);
 
-        tank.tryMove(Direction.LEFT, Collections.emptyList());
+        move(tank, Direction.LEFT);
 
         assertEquals(new GridPoint2(1, 2), tank.getDestinationCoordinates());
         assertEquals(90f, tank.getRotation(), 0f);
@@ -62,9 +63,24 @@ public class TankTest {
         assertEquals(new GridPoint2(1, 1), tank.getCurrentCoordinates());
         assertEquals(new GridPoint2(1, 1), tank.getDestinationCoordinates());
 
-        tank.tryMove(Direction.RIGHT, Collections.emptyList());
+        move(tank, Direction.RIGHT);
         tank.update(1f);
         assertEquals(1f, tank.getMovementProgress(), 0f);
         assertEquals(new GridPoint2(2, 1), tank.getCurrentCoordinates());
+    }
+
+    private void move(Tank tank, Direction direction, Obstacle... obstacles) {
+        WorldView world = new WorldView() {
+            @Override
+            public TankView getTank() {
+                return tank;
+            }
+
+            @Override
+            public List<ObstacleView> getObstacles() {
+                return Arrays.asList(obstacles);
+            }
+        };
+        tank.tryMove(direction, new ObstacleMovementPolicy(), world);
     }
 }

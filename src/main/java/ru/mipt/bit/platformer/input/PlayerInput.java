@@ -1,54 +1,33 @@
 package ru.mipt.bit.platformer.input;
 
 import com.badlogic.gdx.Input;
+import ru.mipt.bit.platformer.controller.ActionSource;
+import ru.mipt.bit.platformer.controller.PlayerAction;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
-public final class PlayerInput {
-
-    private static final KeyBinding[] KEY_BINDINGS = {
-            new KeyBinding(PlayerAction.MOVE_UP, Input.Keys.UP, Input.Keys.W),
-            new KeyBinding(PlayerAction.MOVE_LEFT, Input.Keys.LEFT, Input.Keys.A),
-            new KeyBinding(PlayerAction.MOVE_DOWN, Input.Keys.DOWN, Input.Keys.S),
-            new KeyBinding(PlayerAction.MOVE_RIGHT, Input.Keys.RIGHT, Input.Keys.D)
-    };
+public final class PlayerInput implements ActionSource {
 
     private final Input input;
+    private final List<KeyBinding> keyBindings;
 
-    public PlayerInput(Input input) {
+    public PlayerInput(Input input, List<KeyBinding> keyBindings) {
         this.input = input;
+        this.keyBindings = Collections.unmodifiableList(new ArrayList<>(keyBindings));
     }
 
-    public EnumSet<PlayerAction> getPressedActions() {
+    @Override
+    public Set<PlayerAction> getPressedActions() {
         EnumSet<PlayerAction> actions = EnumSet.noneOf(PlayerAction.class);
-        for (KeyBinding keyBinding : KEY_BINDINGS) {
-            if (keyBinding.isPressed(input)) {
-                actions.add(keyBinding.getAction());
+        for (KeyBinding binding : keyBindings) {
+            if (binding.isPressed(input)) {
+                actions.add(binding.getAction());
             }
         }
         return actions;
-    }
-
-    private static final class KeyBinding {
-
-        private final PlayerAction action;
-        private final int[] keys;
-
-        private KeyBinding(PlayerAction action, int... keys) {
-            this.action = action;
-            this.keys = keys;
-        }
-
-        private boolean isPressed(Input input) {
-            for (int key : keys) {
-                if (input.isKeyPressed(key)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private PlayerAction getAction() {
-            return action;
-        }
     }
 }

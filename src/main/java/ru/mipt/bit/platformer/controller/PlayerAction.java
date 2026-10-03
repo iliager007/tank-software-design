@@ -1,4 +1,4 @@
-package ru.mipt.bit.platformer.input;
+package ru.mipt.bit.platformer.controller;
 
 public enum PlayerAction {
     MOVE_UP,

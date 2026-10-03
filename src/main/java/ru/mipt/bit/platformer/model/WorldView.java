@@ -4,5 +4,7 @@ import java.util.List;
 
 public interface WorldView {
 
-    List<Obstacle> getObstacles();
+    TankView getTank();
+
+    List<ObstacleView> getObstacles();
 }

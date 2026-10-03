@@ -5,32 +5,37 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
-import ru.mipt.bit.platformer.model.Obstacle;
+import ru.mipt.bit.platformer.model.ObstacleView;
+import ru.mipt.bit.platformer.model.WorldView;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.moveRectangleAtTileCenter;
 
-final class ObstacleRenderer {
+public final class ObstacleRenderer implements WorldRenderLayer {
 
     private final TiledMapTileLayer groundLayer;
     private final Texture texture;
     private final TextureRegion graphics;
     private final Rectangle rectangle;
 
-    ObstacleRenderer(TiledMapTileLayer groundLayer) {
+    public ObstacleRenderer(TiledMapTileLayer groundLayer, Texture texture) {
         this.groundLayer = groundLayer;
-        texture = new Texture("images/greenTree.png");
+        this.texture = texture;
         graphics = new TextureRegion(texture);
         rectangle = createBoundingRectangle(graphics);
     }
 
-    void render(Batch batch, Obstacle obstacle) {
-        moveRectangleAtTileCenter(groundLayer, rectangle, obstacle.getCoordinates());
-        drawTextureRegionUnscaled(batch, graphics, rectangle, 0f);
+    @Override
+    public void render(Batch batch, WorldView world) {
+        for (ObstacleView obstacle : world.getObstacles()) {
+            moveRectangleAtTileCenter(groundLayer, rectangle, obstacle.getCoordinates());
+            drawTextureRegionUnscaled(batch, graphics, rectangle, 0f);
+        }
     }
 
-    void dispose() {
+    @Override
+    public void dispose() {
         texture.dispose();
     }
 }
