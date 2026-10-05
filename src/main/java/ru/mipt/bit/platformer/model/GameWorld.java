@@ -1,35 +1,43 @@
 package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
-import ru.mipt.bit.platformer.controller.TankController;
-
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public final class GameWorld implements WorldView {
 
-    private static final float TANK_MOVEMENT_SPEED = 0.4f;
-
     private final Tank tank;
-    private final List<Obstacle> obstacles;
+    private final List<ObstacleView> obstacles;
+    private final MovementPolicy movementPolicy;
 
     public GameWorld() {
-        this.tank = new Tank(new GridPoint2(1, 1), TANK_MOVEMENT_SPEED);
-        this.obstacles = Collections.singletonList(new Obstacle(new GridPoint2(1, 3)));
+        this(WorldSettings.standard(), new ObstacleMovementPolicy());
+    }
+
+    public GameWorld(WorldSettings settings, MovementPolicy movementPolicy) {
+        this.tank = new Tank(settings.getTankCoordinates(), settings.getTankMovementDuration());
+        List<ObstacleView> createdObstacles = new ArrayList<>();
+        for (GridPoint2 coordinates : settings.getObstacleCoordinates()) {
+            createdObstacles.add(new Obstacle(coordinates));
+        }
+        this.obstacles = Collections.unmodifiableList(createdObstacles);
+        this.movementPolicy = movementPolicy;
     }
 
     public void update(TankController tankController, float deltaTime) {
         tankController.chooseDirection(tank, this)
-                .ifPresent(direction -> tank.tryMove(direction, obstacles));
+                .ifPresent(direction -> tank.tryMove(direction, movementPolicy, this));
         tank.update(deltaTime);
     }
 
-    public Tank getTank() {
+    @Override
+    public TankView getTank() {
         return tank;
     }
 
     @Override
-    public List<Obstacle> getObstacles() {
+    public List<ObstacleView> getObstacles() {
         return obstacles;
     }
 }

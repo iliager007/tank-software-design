@@ -2,10 +2,8 @@ package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
 
-import java.util.Collection;
-
+import static com.badlogic.gdx.math.MathUtils.clamp;
 import static com.badlogic.gdx.math.MathUtils.isEqual;
-import static ru.mipt.bit.platformer.util.GdxGameUtils.continueProgress;
 
 public final class Tank implements TankView {
 
@@ -22,14 +20,14 @@ public final class Tank implements TankView {
         this.movementDuration = movementDuration;
     }
 
-    public void tryMove(Direction direction, Collection<Obstacle> obstacles) {
+    public void tryMove(Direction direction, MovementPolicy movementPolicy, WorldView world) {
         if (!isMovementComplete()) {
             return;
         }
 
         rotation = direction.getRotation();
         GridPoint2 requestedDestination = direction.move(currentCoordinates);
-        if (isObstacleAt(requestedDestination, obstacles)) {
+        if (!movementPolicy.canEnter(new GridPoint2(requestedDestination), world)) {
             return;
         }
 
@@ -38,7 +36,7 @@ public final class Tank implements TankView {
     }
 
     public void update(float deltaTime) {
-        movementProgress = continueProgress(movementProgress, deltaTime, movementDuration);
+        movementProgress = clamp(movementProgress + deltaTime / movementDuration, 0f, 1f);
         if (isMovementComplete()) {
             currentCoordinates.set(destinationCoordinates);
         }
@@ -66,14 +64,5 @@ public final class Tank implements TankView {
 
     private boolean isMovementComplete() {
         return isEqual(movementProgress, 1f);
-    }
-
-    private boolean isObstacleAt(GridPoint2 requestedDestination, Collection<Obstacle> obstacles) {
-        for (Obstacle obstacle : obstacles) {
-            if (obstacle.isLocatedAt(requestedDestination)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

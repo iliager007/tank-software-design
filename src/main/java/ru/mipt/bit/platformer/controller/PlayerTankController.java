@@ -1,36 +1,33 @@
 package ru.mipt.bit.platformer.controller;
 
-import ru.mipt.bit.platformer.input.PlayerAction;
-import ru.mipt.bit.platformer.input.PlayerInput;
 import ru.mipt.bit.platformer.model.Direction;
+import ru.mipt.bit.platformer.model.TankController;
 import ru.mipt.bit.platformer.model.TankView;
 import ru.mipt.bit.platformer.model.WorldView;
 
-import java.util.EnumSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public final class PlayerTankController implements TankController {
 
-    private final PlayerInput playerInput;
+    private final ActionSource actionSource;
+    private final List<MovementBinding> movementBindings;
 
-    public PlayerTankController(PlayerInput playerInput) {
-        this.playerInput = playerInput;
+    public PlayerTankController(ActionSource actionSource, List<MovementBinding> movementBindings) {
+        this.actionSource = actionSource;
+        this.movementBindings = Collections.unmodifiableList(new ArrayList<>(movementBindings));
     }
 
     @Override
     public Optional<Direction> chooseDirection(TankView tank, WorldView world) {
-        EnumSet<PlayerAction> actions = playerInput.getPressedActions();
-        if (actions.contains(PlayerAction.MOVE_UP)) {
-            return Optional.of(Direction.UP);
-        }
-        if (actions.contains(PlayerAction.MOVE_LEFT)) {
-            return Optional.of(Direction.LEFT);
-        }
-        if (actions.contains(PlayerAction.MOVE_DOWN)) {
-            return Optional.of(Direction.DOWN);
-        }
-        if (actions.contains(PlayerAction.MOVE_RIGHT)) {
-            return Optional.of(Direction.RIGHT);
+        Set<PlayerAction> actions = actionSource.getPressedActions();
+        for (MovementBinding binding : movementBindings) {
+            if (actions.contains(binding.getAction())) {
+                return Optional.of(binding.getDirection());
+            }
         }
         return Optional.empty();
     }

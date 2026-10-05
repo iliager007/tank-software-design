@@ -1,49 +1,44 @@
 package ru.mipt.bit.platformer.render;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import ru.mipt.bit.platformer.model.GameWorld;
-import ru.mipt.bit.platformer.model.Obstacle;
+import com.badlogic.gdx.utils.Disposable;
+import ru.mipt.bit.platformer.model.WorldView;
 
-import static ru.mipt.bit.platformer.util.GdxGameUtils.createSingleLayerMapRenderer;
-import static ru.mipt.bit.platformer.util.GdxGameUtils.getSingleLayer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public final class GameRenderer {
 
     private final Batch batch;
-    private final TiledMap level;
     private final MapRenderer levelRenderer;
-    private final TankRenderer tankRenderer;
-    private final ObstacleRenderer obstacleRenderer;
+    private final Disposable levelResources;
+    private final List<WorldRenderLayer> layers;
 
-    public GameRenderer() {
-        batch = new SpriteBatch();
-        level = new TmxMapLoader().load("level.tmx");
-        TiledMapTileLayer groundLayer = getSingleLayer(level);
-        levelRenderer = createSingleLayerMapRenderer(level, batch);
-        tankRenderer = new TankRenderer(groundLayer);
-        obstacleRenderer = new ObstacleRenderer(groundLayer);
+    public GameRenderer(Batch batch, MapRenderer levelRenderer, Disposable levelResources,
+                        List<? extends WorldRenderLayer> layers) {
+        this.batch = batch;
+        this.levelRenderer = levelRenderer;
+        this.levelResources = levelResources;
+        this.layers = Collections.unmodifiableList(new ArrayList<>(layers));
     }
 
-    public void render(GameWorld gameWorld) {
+    public void render(WorldView world) {
         levelRenderer.render();
 
         batch.begin();
-        tankRenderer.render(batch, gameWorld.getTank());
-        for (Obstacle obstacle : gameWorld.getObstacles()) {
-            obstacleRenderer.render(batch, obstacle);
+        for (WorldRenderLayer layer : layers) {
+            layer.render(batch, world);
         }
         batch.end();
     }
 
     public void dispose() {
-        obstacleRenderer.dispose();
-        tankRenderer.dispose();
-        level.dispose();
+        for (int i = layers.size() - 1; i >= 0; i--) {
+            layers.get(i).dispose();
+        }
+        levelResources.dispose();
         batch.dispose();
     }
 }
