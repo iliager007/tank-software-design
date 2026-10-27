@@ -15,6 +15,45 @@ import static org.junit.Assert.assertThrows;
 public class GameWorldTest {
 
     @Test
+    public void usesActualLevelDimensions() {
+        GameWorld world = new GameWorld(2, 1, new WorldSettings(new GridPoint2(0, 0),
+                0.4f, Collections.emptyList()), new CollisionMovementPolicy());
+
+        world.update((tank, view) -> Optional.of(new MoveTankCommand(Direction.RIGHT)), 0.4f);
+        assertEquals(new GridPoint2(1, 0), world.getTank().getCurrentCoordinates());
+        world.update((tank, view) -> Optional.of(new MoveTankCommand(Direction.RIGHT)), 0.4f);
+        world.update((tank, view) -> Optional.of(new MoveTankCommand(Direction.UP)), 0.4f);
+
+        assertEquals(new GridPoint2(1, 0), world.getTank().getCurrentCoordinates());
+        assertEquals(2, world.getWidth());
+        assertEquals(1, world.getHeight());
+        assertThrows(IllegalArgumentException.class, () -> new GameWorld(0, 1,
+                WorldSettings.standard(), new CollisionMovementPolicy()));
+        assertThrows(IllegalArgumentException.class, () -> new GameWorld(1, -1,
+                WorldSettings.standard(), new CollisionMovementPolicy()));
+    }
+
+    @Test
+    public void preventsLeavingLevelOnAllFourSidesAndStillTurnsTank() {
+        GridPoint2[] starts = {new GridPoint2(0, 2), new GridPoint2(9, 2),
+                new GridPoint2(2, 0), new GridPoint2(2, 7)};
+        Direction[] directions = {Direction.LEFT, Direction.RIGHT, Direction.DOWN, Direction.UP};
+        float[] rotations = {-180f, 0f, -90f, 90f};
+        for (int i = 0; i < starts.length; i++) {
+            GameWorld world = new GameWorld(new WorldSettings(starts[i], 0.4f,
+                    Collections.emptyList()), new CollisionMovementPolicy());
+            Direction direction = directions[i];
+
+            world.update((tank, view) -> Optional.of(new MoveTankCommand(direction)), 0.4f);
+
+            assertEquals(starts[i], world.getTank().getCurrentCoordinates());
+            assertEquals(starts[i], world.getTank().getDestinationCoordinates());
+            assertEquals(1f, world.getTank().getMovementProgress(), 0f);
+            assertEquals(rotations[i], world.getTank().getRotation(), 0f);
+        }
+    }
+
+    @Test
     public void startsWithTankAndTreeAtExpectedCells() {
         GameWorld world = new GameWorld();
 
@@ -28,7 +67,7 @@ public class GameWorldTest {
     public void appliesControllerDecisionAndAdvancesMovement() {
         GameWorld world = new GameWorld();
 
-        world.update((tank, view) -> Optional.of(Direction.UP), 0.2f);
+        world.update((tank, view) -> Optional.of(new MoveTankCommand(Direction.UP)), 0.2f);
 
         assertEquals(new GridPoint2(1, 1), world.getTank().getCurrentCoordinates());
         assertEquals(new GridPoint2(1, 2), world.getTank().getDestinationCoordinates());
@@ -41,9 +80,9 @@ public class GameWorldTest {
     @Test
     public void preventsMovingIntoTree() {
         GameWorld world = new GameWorld();
-        world.update((tank, view) -> Optional.of(Direction.UP), 0.4f);
+        world.update((tank, view) -> Optional.of(new MoveTankCommand(Direction.UP)), 0.4f);
 
-        world.update((tank, view) -> Optional.of(Direction.UP), 0.1f);
+        world.update((tank, view) -> Optional.of(new MoveTankCommand(Direction.UP)), 0.1f);
 
         assertEquals(new GridPoint2(1, 2), world.getTank().getCurrentCoordinates());
         assertEquals(new GridPoint2(1, 2), world.getTank().getDestinationCoordinates());
@@ -60,13 +99,13 @@ public class GameWorldTest {
         obstaclePositions.get(0).set(8, 8);
         obstaclePositions.clear();
 
-        GameWorld world = new GameWorld(settings, new ObstacleMovementPolicy());
+        GameWorld world = new GameWorld(settings, new CollisionMovementPolicy());
         assertEquals(new GridPoint2(4, 4), world.getTank().getCurrentCoordinates());
         assertEquals(2, world.getObstacles().size());
         assertEquals(new GridPoint2(5, 4), world.getObstacles().get(0).getCoordinates());
         assertObstaclesCannotBeModified(world);
 
-        world.update((tank, view) -> Optional.of(Direction.UP), 0.2f);
+        world.update((tank, view) -> Optional.of(new MoveTankCommand(Direction.UP)), 0.2f);
         assertEquals(0.25f, world.getTank().getMovementProgress(), 0.0001f);
     }
 
@@ -75,12 +114,12 @@ public class GameWorldTest {
         WorldSettings settings = new WorldSettings(new GridPoint2(1, 1), 0.4f,
                 Collections.emptyList());
         GameWorld blocked = new GameWorld(settings, (destination, world) -> false);
-        blocked.update((tank, view) -> Optional.of(Direction.UP), 0.1f);
+        blocked.update((tank, view) -> Optional.of(new MoveTankCommand(Direction.UP)), 0.1f);
         assertEquals(new GridPoint2(1, 1), blocked.getTank().getDestinationCoordinates());
         assertEquals(90f, blocked.getTank().getRotation(), 0f);
 
         GameWorld open = new GameWorld(settings, (destination, world) -> true);
-        open.update((tank, view) -> Optional.of(Direction.UP), 0.1f);
+        open.update((tank, view) -> Optional.of(new MoveTankCommand(Direction.UP)), 0.1f);
         assertEquals(new GridPoint2(1, 2), open.getTank().getDestinationCoordinates());
     }
 
@@ -97,7 +136,7 @@ public class GameWorldTest {
             return true;
         });
 
-        world.update((tank, view) -> Optional.of(Direction.RIGHT), 0.1f);
+        world.update((tank, view) -> Optional.of(new MoveTankCommand(Direction.RIGHT)), 0.1f);
 
         assertEquals(new GridPoint2(2, 1), world.getTank().getDestinationCoordinates());
     }

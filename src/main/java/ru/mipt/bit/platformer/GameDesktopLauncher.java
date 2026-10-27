@@ -17,16 +17,18 @@ import com.badlogic.gdx.utils.Disposable;
 import ru.mipt.bit.platformer.controller.MovementBinding;
 import ru.mipt.bit.platformer.controller.PlayerAction;
 import ru.mipt.bit.platformer.controller.PlayerTankController;
+import ru.mipt.bit.platformer.controller.RandomTankController;
 import ru.mipt.bit.platformer.input.KeyBinding;
 import ru.mipt.bit.platformer.input.PlayerInput;
 import ru.mipt.bit.platformer.level.FileLevelSource;
 import ru.mipt.bit.platformer.level.LevelDefinition;
 import ru.mipt.bit.platformer.level.LevelSource;
 import ru.mipt.bit.platformer.level.RandomLevelSource;
+import ru.mipt.bit.platformer.level.RandomTankLevelSource;
 import ru.mipt.bit.platformer.level.TextLevelParser;
 import ru.mipt.bit.platformer.model.Direction;
 import ru.mipt.bit.platformer.model.GameWorld;
-import ru.mipt.bit.platformer.model.ObstacleMovementPolicy;
+import ru.mipt.bit.platformer.model.CollisionMovementPolicy;
 import ru.mipt.bit.platformer.model.TankController;
 import ru.mipt.bit.platformer.model.WorldSettings;
 import ru.mipt.bit.platformer.render.GameRenderer;
@@ -50,10 +52,11 @@ public class GameDesktopLauncher implements ApplicationListener {
     private final LevelSource levelSource;
     private GameWorld gameWorld;
     private TankController tankController;
+    private TankController aiController;
     private GameRenderer gameRenderer;
 
     public GameDesktopLauncher() {
-        this(() -> new LevelDefinition(10, 8, WorldSettings.standard()));
+        this(createLevelSource());
     }
 
     public GameDesktopLauncher(LevelSource levelSource) {
@@ -68,7 +71,9 @@ public class GameDesktopLauncher implements ApplicationListener {
         } catch (IOException exception) {
             throw new UncheckedIOException("Cannot read level", exception);
         }
-        gameWorld = new GameWorld(definition.getWorldSettings(), new ObstacleMovementPolicy());
+        gameWorld = new GameWorld(definition.getWidth(), definition.getHeight(),
+                definition.getWorldSettings(), new CollisionMovementPolicy());
+        aiController = new RandomTankController(new Random());
         PlayerInput playerInput = new PlayerInput(Gdx.input, Arrays.asList(
                 new KeyBinding(PlayerAction.MOVE_UP, Input.Keys.UP, Input.Keys.W),
                 new KeyBinding(PlayerAction.MOVE_LEFT, Input.Keys.LEFT, Input.Keys.A),
@@ -112,7 +117,7 @@ public class GameDesktopLauncher implements ApplicationListener {
         // get time passed since the last render
         float deltaTime = Gdx.graphics.getDeltaTime();
 
-        gameWorld.update(tankController, deltaTime);
+        gameWorld.update(tankController, aiController, deltaTime);
         gameRenderer.render(gameWorld);
     }
 
@@ -136,18 +141,27 @@ public class GameDesktopLauncher implements ApplicationListener {
         gameRenderer.dispose();
     }
 
-    public static void main(String[] args) {
-        GameDesktopLauncher launcher;
+    static LevelSource createLevelSource(String... args) {
+        LevelSource source;
+        int aiTankCount = 3;
         if (args.length == 0) {
-            launcher = new GameDesktopLauncher();
-        } else if (args.length == 2 && "file".equals(args[0])) {
-            launcher = new GameDesktopLauncher(new FileLevelSource(Paths.get(args[1]), new TextLevelParser(0.4f)));
-        } else if ((args.length == 1 || args.length == 2) && "random".equals(args[0])) {
-            int obstacleCount = args.length == 2 ? Integer.parseInt(args[1]) : 20;
-            launcher = new GameDesktopLauncher(new RandomLevelSource(10, 8, obstacleCount, 0.4f, new Random()));
+            source = () -> new LevelDefinition(10, 8, WorldSettings.standard());
+        } else if ((args.length == 2 || args.length == 3) && "file".equals(args[0])) {
+            source = new FileLevelSource(Paths.get(args[1]), new TextLevelParser(0.4f));
+        } else if (args.length >= 1 && args.length <= 3 && "random".equals(args[0])) {
+            int obstacleCount = args.length >= 2 ? Integer.parseInt(args[1]) : 20;
+            source = new RandomLevelSource(10, 8, obstacleCount, 0.4f, new Random());
         } else {
-            throw new IllegalArgumentException("Usage: [random [obstacleCount] | file <path>]");
+            throw new IllegalArgumentException("Usage: [random [obstacleCount [aiTankCount]] | file <path> [aiTankCount]]");
         }
+        if (args.length == 3) {
+            aiTankCount = Integer.parseInt(args[2]);
+        }
+        return new RandomTankLevelSource(source, aiTankCount, new Random());
+    }
+
+    public static void main(String[] args) {
+        GameDesktopLauncher launcher = new GameDesktopLauncher(createLevelSource(args));
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         // level width: 10 tiles x 128px, height: 8 tiles x 128px
         config.setWindowedMode(1280, 1024);

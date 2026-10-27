@@ -1,5 +1,6 @@
 package ru.mipt.bit.platformer.render;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -29,14 +30,20 @@ public final class TankRenderer implements WorldRenderLayer {
 
     @Override
     public void render(Batch batch, WorldView world) {
-        TankView tank = world.getTank();
-        tileMovement.moveRectangleBetweenTileCenters(
-                rectangle,
-                tank.getCurrentCoordinates(),
-                tank.getDestinationCoordinates(),
-                tank.getMovementProgress()
-        );
-        drawTextureRegionUnscaled(batch, graphics, rectangle, tank.getRotation());
+        float originalColor = batch.getPackedColor();
+        for (TankView tank : world.getTanks()) {
+            if (tank != world.getTank()) {
+                batch.setColor(Color.LIGHT_GRAY);
+            }
+            tileMovement.moveRectangleBetweenTileCenters(
+                    rectangle,
+                    tank.getCurrentCoordinates(),
+                    tank.getDestinationCoordinates(),
+                    tank.getMovementProgress()
+            );
+            drawTextureRegionUnscaled(batch, graphics, rectangle, tank.getRotation());
+            batch.setPackedColor(originalColor);
+        }
     }
 
     @Override
