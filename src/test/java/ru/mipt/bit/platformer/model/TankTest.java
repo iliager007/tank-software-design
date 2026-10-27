@@ -72,8 +72,23 @@ public class TankTest {
     private void move(Tank tank, Direction direction, Obstacle... obstacles) {
         WorldView world = new WorldView() {
             @Override
+            public int getWidth() {
+                return 10;
+            }
+
+            @Override
+            public int getHeight() {
+                return 8;
+            }
+
+            @Override
             public TankView getTank() {
                 return tank;
+            }
+
+            @Override
+            public List<TankView> getTanks() {
+                return java.util.Collections.singletonList(tank);
             }
 
             @Override
@@ -81,6 +96,6 @@ public class TankTest {
                 return Arrays.asList(obstacles);
             }
         };
-        tank.tryMove(direction, new ObstacleMovementPolicy(), world);
+        tank.tryMove(direction, new CollisionMovementPolicy(), world);
     }
 }

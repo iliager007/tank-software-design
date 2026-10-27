@@ -5,8 +5,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import ru.mipt.bit.platformer.model.Direction;
+import ru.mipt.bit.platformer.model.MoveTankCommand;
 import ru.mipt.bit.platformer.model.GameWorld;
-import ru.mipt.bit.platformer.model.ObstacleMovementPolicy;
+import ru.mipt.bit.platformer.model.CollisionMovementPolicy;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -27,13 +28,15 @@ public class FileLevelSourceTest {
         Path file = folder.newFile("level.txt").toPath();
         Files.write(file, "_T_\r\n_X_\r\n___\r\n".getBytes(StandardCharsets.UTF_8));
         LevelSource source = new FileLevelSource(file, new TextLevelParser(0.4f));
-        GameWorld world = new GameWorld(source.load().getWorldSettings(), new ObstacleMovementPolicy());
+        LevelDefinition level = source.load();
+        GameWorld world = new GameWorld(level.getWidth(), level.getHeight(), level.getWorldSettings(),
+                new CollisionMovementPolicy());
 
         assertEquals(new GridPoint2(1, 1), world.getTank().getCurrentCoordinates());
         assertEquals(new GridPoint2(1, 2), world.getObstacles().get(0).getCoordinates());
-        world.update((tank, view) -> Optional.of(Direction.UP), 0.4f);
+        world.update((tank, view) -> Optional.of(new MoveTankCommand(Direction.UP)), 0.4f);
         assertEquals(new GridPoint2(1, 1), world.getTank().getCurrentCoordinates());
-        world.update((tank, view) -> Optional.of(Direction.RIGHT), 0.4f);
+        world.update((tank, view) -> Optional.of(new MoveTankCommand(Direction.RIGHT)), 0.4f);
         assertEquals(new GridPoint2(2, 1), world.getTank().getCurrentCoordinates());
     }
 

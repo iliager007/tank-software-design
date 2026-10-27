@@ -11,15 +11,18 @@ public final class WorldSettings {
     private final GridPoint2 tankCoordinates;
     private final float tankMovementDuration;
     private final List<GridPoint2> obstacleCoordinates;
+    private final List<GridPoint2> aiTankCoordinates;
 
     public WorldSettings(GridPoint2 tankCoordinates, float tankMovementDuration, List<GridPoint2> obstacleCoordinates) {
+        this(tankCoordinates, tankMovementDuration, obstacleCoordinates, Collections.emptyList());
+    }
+
+    public WorldSettings(GridPoint2 tankCoordinates, float tankMovementDuration,
+                         List<GridPoint2> obstacleCoordinates, List<GridPoint2> aiTankCoordinates) {
         this.tankCoordinates = new GridPoint2(tankCoordinates);
         this.tankMovementDuration = tankMovementDuration;
-        List<GridPoint2> coordinates = new ArrayList<>(obstacleCoordinates.size());
-        for (GridPoint2 coordinate : obstacleCoordinates) {
-            coordinates.add(new GridPoint2(coordinate));
-        }
-        this.obstacleCoordinates = Collections.unmodifiableList(coordinates);
+        this.obstacleCoordinates = Collections.unmodifiableList(copyCoordinates(obstacleCoordinates));
+        this.aiTankCoordinates = Collections.unmodifiableList(copyCoordinates(aiTankCoordinates));
     }
 
     public static WorldSettings standard() {
@@ -36,8 +39,16 @@ public final class WorldSettings {
     }
 
     public List<GridPoint2> getObstacleCoordinates() {
-        List<GridPoint2> coordinates = new ArrayList<>(obstacleCoordinates.size());
-        for (GridPoint2 coordinate : obstacleCoordinates) {
+        return copyCoordinates(obstacleCoordinates);
+    }
+
+    public List<GridPoint2> getAiTankCoordinates() {
+        return copyCoordinates(aiTankCoordinates);
+    }
+
+    private static List<GridPoint2> copyCoordinates(List<GridPoint2> source) {
+        List<GridPoint2> coordinates = new ArrayList<>(source.size());
+        for (GridPoint2 coordinate : source) {
             coordinates.add(new GridPoint2(coordinate));
         }
         return coordinates;

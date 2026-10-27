@@ -62,7 +62,7 @@ public final class Tank implements TankView {
         return rotation;
     }
 
-    private boolean isMovementComplete() {
+    boolean isMovementComplete() {
         return isEqual(movementProgress, 1f);
     }
 }

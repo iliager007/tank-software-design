@@ -4,5 +4,5 @@ import java.util.Optional;
 
 public interface TankController {
 
-    Optional<Direction> chooseDirection(TankView tank, WorldView world);
+    Optional<TankCommand> chooseCommand(TankView tank, WorldView world);
 }
