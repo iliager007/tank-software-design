@@ -4,12 +4,14 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.maps.MapRenderer;
 import org.junit.Test;
 import ru.mipt.bit.platformer.model.GameWorld;
+import ru.mipt.bit.platformer.model.ShootTankCommand;
 import ru.mipt.bit.platformer.model.WorldView;
 
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -23,9 +25,9 @@ public class GameRendererTest {
         MapRenderer mapRenderer = recordingProxy(MapRenderer.class, events, "map.");
         GameRenderer renderer = new GameRenderer(batch, mapRenderer,
                 () -> events.add("level.dispose"), Arrays.asList(
-                        layer("tank", events), layer("obstacle", events), layer("extra", events)));
+                        layer("tank", events), layer("obstacle", events), layer("extra", events)), new GameWorld());
 
-        renderer.render(new GameWorld());
+        renderer.render();
         renderer.dispose();
 
         assertEquals(Arrays.asList("map.render", "batch.begin", "tank.render", "obstacle.render",
@@ -48,6 +50,33 @@ public class GameRendererTest {
         assertEquals(System.identityHashCode(batch), batch.hashCode());
         assertEquals("RecordingProxy<Batch>", batch.toString());
         assertTrue(events.isEmpty());
+    }
+
+    @Test
+    public void layersReceiveObjectsFromSubscriptionAndRendererUnsubscribesOnDispose() {
+        List<String> events = new ArrayList<>();
+        GameWorld world = new GameWorld();
+        List<WorldView> frames = new ArrayList<>();
+        WorldRenderLayer layer = new WorldRenderLayer() {
+            @Override
+            public void render(Batch batch, WorldView frame) {
+                frames.add(frame);
+                assertEquals(world.getObjects(), frame.getObjects());
+            }
+
+            @Override
+            public void dispose() {
+            }
+        };
+        GameRenderer renderer = new GameRenderer(recordingProxy(Batch.class, events, "batch."),
+                recordingProxy(MapRenderer.class, events, "map."), () -> {}, Arrays.asList(layer), world);
+        renderer.render();
+        world.update((tank, view) -> Optional.of(new ShootTankCommand()), 0f);
+        renderer.render();
+        assertEquals(1, frames.get(1).getBullets().size());
+        renderer.dispose();
+        world.update((tank, view) -> Optional.empty(), 2f);
+        assertEquals(1, frames.get(1).getBullets().size());
     }
 
     private WorldRenderLayer layer(String name, List<String> events) {

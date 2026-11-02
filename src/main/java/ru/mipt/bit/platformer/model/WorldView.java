@@ -13,4 +13,8 @@ public interface WorldView {
     List<TankView> getTanks();
 
     List<ObstacleView> getObstacles();
+
+    List<BulletView> getBullets();
+
+    List<GameObjectView> getObjects();
 }

@@ -3,7 +3,7 @@ package ru.mipt.bit.platformer.render;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.utils.Disposable;
-import ru.mipt.bit.platformer.model.WorldView;
+import ru.mipt.bit.platformer.model.ObservableWorld;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,16 +15,18 @@ public final class GameRenderer {
     private final MapRenderer levelRenderer;
     private final Disposable levelResources;
     private final List<WorldRenderLayer> layers;
+    private final RenderWorld world;
 
     public GameRenderer(Batch batch, MapRenderer levelRenderer, Disposable levelResources,
-                        List<? extends WorldRenderLayer> layers) {
+                        List<? extends WorldRenderLayer> layers, ObservableWorld world) {
         this.batch = batch;
         this.levelRenderer = levelRenderer;
         this.levelResources = levelResources;
         this.layers = Collections.unmodifiableList(new ArrayList<>(layers));
+        this.world = new RenderWorld(world);
     }
 
-    public void render(WorldView world) {
+    public void render() {
         levelRenderer.render();
 
         batch.begin();
@@ -35,6 +37,7 @@ public final class GameRenderer {
     }
 
     public void dispose() {
+        world.dispose();
         for (int i = layers.size() - 1; i >= 0; i--) {
             layers.get(i).dispose();
         }

@@ -11,7 +11,7 @@ public final class MoveTankCommand implements TankCommand {
     }
 
     @Override
-    public void execute(Tank tank, MovementPolicy movementPolicy, WorldView world) {
+    public void execute(Tank tank, MovementPolicy movementPolicy, WorldContext world) {
         tank.tryMove(direction, movementPolicy, world);
     }
 }

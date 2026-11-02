@@ -32,6 +32,8 @@ import ru.mipt.bit.platformer.model.CollisionMovementPolicy;
 import ru.mipt.bit.platformer.model.TankController;
 import ru.mipt.bit.platformer.model.WorldSettings;
 import ru.mipt.bit.platformer.render.GameRenderer;
+import ru.mipt.bit.platformer.render.BulletRenderer;
+import ru.mipt.bit.platformer.render.BulletTextureFactory;
 import ru.mipt.bit.platformer.render.GroundLayerFactory;
 import ru.mipt.bit.platformer.render.ObstacleRenderer;
 import ru.mipt.bit.platformer.render.TankRenderer;
@@ -78,7 +80,8 @@ public class GameDesktopLauncher implements ApplicationListener {
                 new KeyBinding(PlayerAction.MOVE_UP, Input.Keys.UP, Input.Keys.W),
                 new KeyBinding(PlayerAction.MOVE_LEFT, Input.Keys.LEFT, Input.Keys.A),
                 new KeyBinding(PlayerAction.MOVE_DOWN, Input.Keys.DOWN, Input.Keys.S),
-                new KeyBinding(PlayerAction.MOVE_RIGHT, Input.Keys.RIGHT, Input.Keys.D)
+                new KeyBinding(PlayerAction.MOVE_RIGHT, Input.Keys.RIGHT, Input.Keys.D),
+                new KeyBinding(PlayerAction.SHOOT, Input.Keys.SPACE)
         ));
         tankController = new PlayerTankController(playerInput, Arrays.asList(
                 new MovementBinding(PlayerAction.MOVE_UP, Direction.UP),
@@ -104,8 +107,9 @@ public class GameDesktopLauncher implements ApplicationListener {
         };
         gameRenderer = new GameRenderer(batch, levelRenderer, levelResources, Arrays.asList(
                 new TankRenderer(groundLayer, new Texture("images/tank_blue.png"), Interpolation.smooth),
-                new ObstacleRenderer(groundLayer, new Texture("images/greenTree.png"))
-        ));
+                new ObstacleRenderer(groundLayer, new Texture("images/greenTree.png")),
+                new BulletRenderer(groundLayer, new BulletTextureFactory().create())
+        ), gameWorld);
     }
 
     @Override
@@ -118,7 +122,7 @@ public class GameDesktopLauncher implements ApplicationListener {
         float deltaTime = Gdx.graphics.getDeltaTime();
 
         gameWorld.update(tankController, aiController, deltaTime);
-        gameRenderer.render(gameWorld);
+        gameRenderer.render();
     }
 
     @Override
