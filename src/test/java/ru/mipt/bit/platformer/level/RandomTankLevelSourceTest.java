@@ -3,6 +3,7 @@ package ru.mipt.bit.platformer.level;
 import com.badlogic.gdx.math.GridPoint2;
 import org.junit.Test;
 import ru.mipt.bit.platformer.model.WorldSettings;
+import ru.mipt.bit.platformer.model.BulletSettings;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,7 +23,8 @@ public class RandomTankLevelSourceTest {
     @Test
     public void placesTanksInDistinctFreeCellsAcrossSeedsAndPreservesLevel() throws IOException {
         WorldSettings initial = new WorldSettings(new GridPoint2(1, 1), 0.8f,
-                Arrays.asList(new GridPoint2(0, 0), new GridPoint2(3, 2)));
+                Arrays.asList(new GridPoint2(0, 0), new GridPoint2(3, 2)), Collections.emptyList(),
+                75, new BulletSettings(17, 0.2f));
         for (int seed = 0; seed < 100; seed++) {
             LevelDefinition level = new RandomTankLevelSource(() -> new LevelDefinition(7, 5, initial),
                     8, new Random(seed)).load();
@@ -35,6 +37,9 @@ public class RandomTankLevelSourceTest {
             assertEquals(initial.getTankCoordinates(), settings.getTankCoordinates());
             assertEquals(initial.getObstacleCoordinates(), settings.getObstacleCoordinates());
             assertEquals(0.8f, settings.getTankMovementDuration(), 0f);
+            assertEquals(75, settings.getTankHealth());
+            assertEquals(17, settings.getBulletSettings().getDamage());
+            assertEquals(0.2f, settings.getBulletSettings().getMovementDuration(), 0f);
             assertEquals(8, settings.getAiTankCoordinates().size());
             for (GridPoint2 cell : settings.getAiTankCoordinates()) {
                 assertTrue(occupied.add(cell));

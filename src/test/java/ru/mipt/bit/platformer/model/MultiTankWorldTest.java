@@ -2,12 +2,10 @@ package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
 import org.junit.Test;
-import ru.mipt.bit.platformer.controller.RandomTankController;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -50,7 +48,7 @@ public class MultiTankWorldTest {
     public void aiMovesWithoutPlayerInput() {
         GameWorld world = world(new GridPoint2(1, 1), new GridPoint2(4, 4));
 
-        world.update(idle, new RandomTankController(new Random(42)), 0.4f);
+        world.update(idle, move(Direction.DOWN), 0.4f);
 
         assertEquals(new GridPoint2(1, 1), world.getTank().getCurrentCoordinates());
         assertEquals(new GridPoint2(4, 3), world.getTanks().get(1).getCurrentCoordinates());
@@ -120,7 +118,7 @@ public class MultiTankWorldTest {
     @Test
     public void doesNotAskStrategiesForCommandsInMiddleOfStep() {
         GameWorld world = world(new GridPoint2(1, 1), new GridPoint2(4, 4));
-        RandomTankController ai = new RandomTankController(new Random(42));
+        TankController ai = move(Direction.DOWN);
         world.update(move(Direction.RIGHT), ai, 0.1f);
         TankController failIfCalled = (tank, view) -> {
             throw new AssertionError("Strategy called during movement");
@@ -128,7 +126,7 @@ public class MultiTankWorldTest {
 
         world.update(failIfCalled, failIfCalled, 0.1f);
         world.update(failIfCalled, failIfCalled, 0.2f);
-        world.update(idle, ai, 0f);
+        world.update(idle, move(Direction.UP), 0f);
 
         assertEquals(new GridPoint2(4, 4), world.getTanks().get(1).getDestinationCoordinates());
         assertEquals(new GridPoint2(2, 1), world.getTank().getCurrentCoordinates());

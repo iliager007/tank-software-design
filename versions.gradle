@@ -1,5 +1,6 @@
 def versions = [:]
 versions.gdx = '1.9.11'
+versions.lwjgl = '3.4.3'
 
 def deps = [:]
 
@@ -10,3 +11,4 @@ gdx.platform_desktop = "com.badlogicgames.gdx:gdx-platform:$versions.gdx:natives
 deps.gdx = gdx
 
 ext.deps = deps
+ext.versions = versions

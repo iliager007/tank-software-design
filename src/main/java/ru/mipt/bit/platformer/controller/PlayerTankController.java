@@ -1,6 +1,7 @@
 package ru.mipt.bit.platformer.controller;
 
 import ru.mipt.bit.platformer.model.MoveTankCommand;
+import ru.mipt.bit.platformer.model.ShootTankCommand;
 import ru.mipt.bit.platformer.model.TankCommand;
 import ru.mipt.bit.platformer.model.TankController;
 import ru.mipt.bit.platformer.model.TankView;
@@ -23,8 +24,17 @@ public final class PlayerTankController implements TankController {
     }
 
     @Override
+    public Optional<TankCommand> chooseCommandWhileMoving(TankView tank, WorldView world) {
+        return actionSource.getPressedActions().contains(PlayerAction.SHOOT)
+                ? Optional.of(new ShootTankCommand()) : Optional.empty();
+    }
+
+    @Override
     public Optional<TankCommand> chooseCommand(TankView tank, WorldView world) {
         Set<PlayerAction> actions = actionSource.getPressedActions();
+        if (actions.contains(PlayerAction.SHOOT)) {
+            return Optional.of(new ShootTankCommand());
+        }
         for (MovementBinding binding : movementBindings) {
             if (actions.contains(binding.getAction())) {
                 return Optional.of(new MoveTankCommand(binding.getDirection()));

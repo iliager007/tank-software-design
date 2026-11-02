@@ -2,7 +2,9 @@ package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
 
-public interface TankView {
+public interface TankView extends GameObjectView {
+
+    int getHealth();
 
     GridPoint2 getCurrentCoordinates();
 

@@ -16,15 +16,22 @@ public class RandomTankControllerTest {
 
     @Test
     public void choosesAllFourDirectionsUsingInjectedRandom() {
-        RandomTankController controller = new RandomTankController(new Random(42));
-        GridPoint2[] expected = {new GridPoint2(4, 3), new GridPoint2(4, 5),
-                new GridPoint2(4, 3), new GridPoint2(4, 5), new GridPoint2(3, 4), new GridPoint2(5, 4)};
+        GridPoint2[] expected = {new GridPoint2(4, 5), new GridPoint2(3, 4),
+                new GridPoint2(4, 3), new GridPoint2(5, 4)};
         GameWorld world = new GameWorld();
-        for (GridPoint2 destination : expected) {
+        for (int i = 0; i < expected.length; i++) {
+            int action = i;
+            RandomTankController controller = new RandomTankController(new Random() {
+                @Override
+                public int nextInt(int bound) {
+                    assertEquals(5, bound);
+                    return action;
+                }
+            });
             Tank tank = new Tank(new GridPoint2(4, 4), 0.4f);
             controller.chooseCommand(tank, world).get().execute(tank, new CollisionMovementPolicy(), world);
 
-            assertEquals(destination, tank.getDestinationCoordinates());
+            assertEquals(expected[i], tank.getDestinationCoordinates());
             assertEquals(new GridPoint2(4, 4), tank.getCurrentCoordinates());
         }
     }

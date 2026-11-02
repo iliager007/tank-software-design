@@ -51,6 +51,6 @@ public final class RandomTankLevelSource implements LevelSource {
         aiTanks.addAll(freeCells.subList(0, Math.min(tankCount, freeCells.size())));
         return new LevelDefinition(level.getWidth(), level.getHeight(), new WorldSettings(
                 settings.getTankCoordinates(), settings.getTankMovementDuration(),
-                settings.getObstacleCoordinates(), aiTanks));
+                settings.getObstacleCoordinates(), aiTanks, settings.getTankHealth(), settings.getBulletSettings()));
     }
 }

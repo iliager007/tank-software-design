@@ -72,6 +72,18 @@ public class TankTest {
     private void move(Tank tank, Direction direction, Obstacle... obstacles) {
         WorldView world = new WorldView() {
             @Override
+            public List<BulletView> getBullets() {
+                return java.util.Collections.emptyList();
+            }
+
+            @Override
+            public List<GameObjectView> getObjects() {
+                List<GameObjectView> objects = new java.util.ArrayList<>(Arrays.asList(obstacles));
+                objects.add(tank);
+                return objects;
+            }
+
+            @Override
             public int getWidth() {
                 return 10;
             }
