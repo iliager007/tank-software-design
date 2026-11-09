@@ -13,6 +13,7 @@ public final class Tank implements TankView, GameObject {
     private final GridPoint2 currentCoordinates;
     private final GridPoint2 destinationCoordinates;
     private final BulletSettings bulletSettings;
+    private final int maxHealth;
 
     private float movementProgress = 1f;
     private Direction direction = Direction.RIGHT;
@@ -31,6 +32,7 @@ public final class Tank implements TankView, GameObject {
         this.destinationCoordinates = new GridPoint2(initialCoordinates);
         this.movementDuration = movementDuration;
         this.health = health;
+        this.maxHealth = health;
         this.bulletSettings = Objects.requireNonNull(bulletSettings, "bulletSettings");
     }
 
@@ -88,6 +90,11 @@ public final class Tank implements TankView, GameObject {
     @Override
     public int getHealth() {
         return health;
+    }
+
+    @Override
+    public int getMaxHealth() {
+        return maxHealth;
     }
 
     @Override
