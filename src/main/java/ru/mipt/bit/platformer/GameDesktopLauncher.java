@@ -18,7 +18,9 @@ import ru.mipt.bit.platformer.controller.MovementBinding;
 import ru.mipt.bit.platformer.controller.PlayerAction;
 import ru.mipt.bit.platformer.controller.PlayerTankController;
 import ru.mipt.bit.platformer.controller.RandomTankController;
+import ru.mipt.bit.platformer.controller.ToggleHealthBarsCommand;
 import ru.mipt.bit.platformer.input.KeyBinding;
+import ru.mipt.bit.platformer.input.KeyCommandInput;
 import ru.mipt.bit.platformer.input.PlayerInput;
 import ru.mipt.bit.platformer.level.FileLevelSource;
 import ru.mipt.bit.platformer.level.LevelDefinition;
@@ -35,6 +37,8 @@ import ru.mipt.bit.platformer.render.GameRenderer;
 import ru.mipt.bit.platformer.render.BulletRenderer;
 import ru.mipt.bit.platformer.render.BulletTextureFactory;
 import ru.mipt.bit.platformer.render.GroundLayerFactory;
+import ru.mipt.bit.platformer.render.HealthBarRenderer;
+import ru.mipt.bit.platformer.render.HealthBarTextureFactory;
 import ru.mipt.bit.platformer.render.ObstacleRenderer;
 import ru.mipt.bit.platformer.render.TankRenderer;
 
@@ -56,6 +60,7 @@ public class GameDesktopLauncher implements ApplicationListener {
     private TankController tankController;
     private TankController aiController;
     private GameRenderer gameRenderer;
+    private KeyCommandInput healthBarInput;
 
     public GameDesktopLauncher() {
         this(createLevelSource());
@@ -105,8 +110,12 @@ public class GameDesktopLauncher implements ApplicationListener {
             levelRendererResource.dispose();
             level.dispose();
         };
-        gameRenderer = new GameRenderer(batch, levelRenderer, levelResources, Arrays.asList(
+        HealthBarRenderer tankRenderer = new HealthBarRenderer(
                 new TankRenderer(groundLayer, new Texture("images/tank_blue.png"), Interpolation.smooth),
+                groundLayer, new HealthBarTextureFactory().create(), Interpolation.smooth);
+        healthBarInput = new KeyCommandInput(Gdx.input, Input.Keys.L, new ToggleHealthBarsCommand(tankRenderer));
+        gameRenderer = new GameRenderer(batch, levelRenderer, levelResources, Arrays.asList(
+                tankRenderer,
                 new ObstacleRenderer(groundLayer, new Texture("images/greenTree.png")),
                 new BulletRenderer(groundLayer, new BulletTextureFactory().create())
         ), gameWorld);
@@ -121,6 +130,7 @@ public class GameDesktopLauncher implements ApplicationListener {
         // get time passed since the last render
         float deltaTime = Gdx.graphics.getDeltaTime();
 
+        healthBarInput.update();
         gameWorld.update(tankController, aiController, deltaTime);
         gameRenderer.render();
     }
@@ -152,7 +162,7 @@ public class GameDesktopLauncher implements ApplicationListener {
             source = () -> new LevelDefinition(10, 8, WorldSettings.standard());
         } else if ((args.length == 2 || args.length == 3) && "file".equals(args[0])) {
             source = new FileLevelSource(Paths.get(args[1]), new TextLevelParser(0.4f));
-        } else if (args.length >= 1 && args.length <= 3 && "random".equals(args[0])) {
+        } else if (args.length <= 3 && "random".equals(args[0])) {
             int obstacleCount = args.length >= 2 ? Integer.parseInt(args[1]) : 20;
             source = new RandomLevelSource(10, 8, obstacleCount, 0.4f, new Random());
         } else {
