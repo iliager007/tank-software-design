@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Application: адаптер действий игрока к порту выбора команд TankController.
+ */
 public final class PlayerTankController implements TankController {
 
     private final ActionSource actionSource;

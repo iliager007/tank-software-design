@@ -10,6 +10,9 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Infrastructure: адаптер клавиатуры libGDX для исходящего порта ActionSource.
+ */
 public final class PlayerInput implements ActionSource {
 
     private final Input input;

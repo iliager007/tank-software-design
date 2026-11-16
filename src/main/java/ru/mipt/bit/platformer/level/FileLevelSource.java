@@ -6,6 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
+/**
+ * Infrastructure: файловый адаптер исходящего порта LevelSource.
+ */
 public final class FileLevelSource implements LevelSource {
 
     private final Path path;

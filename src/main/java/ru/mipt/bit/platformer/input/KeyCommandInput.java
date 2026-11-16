@@ -2,6 +2,9 @@ package ru.mipt.bit.platformer.input;
 
 import com.badlogic.gdx.Input;
 
+/**
+ * Infrastructure: входящий UI-адаптер, вызывающий Runnable по новому нажатию клавиши.
+ */
 public final class KeyCommandInput {
 
     private final Input input;

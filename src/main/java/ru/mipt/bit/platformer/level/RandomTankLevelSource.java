@@ -12,6 +12,9 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * Application: декоратор адаптера LevelSource, добавляющий стартовые AI-танки.
+ */
 public final class RandomTankLevelSource implements LevelSource {
 
     private final LevelSource source;

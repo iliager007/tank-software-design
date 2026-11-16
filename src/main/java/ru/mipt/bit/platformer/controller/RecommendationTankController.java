@@ -11,6 +11,9 @@ import ru.mipt.bit.platformer.model.WorldView;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Application: адаптер TankController, получающий решения через порт RecommendationEngine.
+ */
 public final class RecommendationTankController implements TankController {
 
     private final RecommendationEngine engine;

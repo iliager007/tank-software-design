@@ -2,6 +2,9 @@ package ru.mipt.bit.platformer.model;
 
 import java.util.List;
 
+/**
+ * Domain: входящий порт чтения состояния мира для контроллеров и представления.
+ */
 public interface WorldView {
 
     int getWidth();

@@ -14,6 +14,9 @@ import ru.mipt.bit.platformer.util.TileMovement;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 
+/**
+ * Infrastructure: компонент графического адаптера, отображающий TankView средствами libGDX.
+ */
 public final class TankRenderer implements WorldRenderLayer {
 
     private final Texture texture;

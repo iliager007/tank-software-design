@@ -13,6 +13,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Domain: мир и игровые правила; update также содержит application-координацию команд.
+ */
 public final class GameWorld implements WorldContext, ObservableWorld {
 
     private final int width;

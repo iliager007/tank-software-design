@@ -5,6 +5,9 @@ import ru.mipt.bit.platformer.model.WorldView;
 
 import java.util.Optional;
 
+/**
+ * Application: исходящий порт рекомендаций; адаптер конкретного внешнего движка отсутствует.
+ */
 @FunctionalInterface
 public interface RecommendationEngine {
 

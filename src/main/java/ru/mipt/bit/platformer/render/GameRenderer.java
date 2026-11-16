@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Infrastructure: графический адаптер libGDX, координирующий карту и слои представления.
+ */
 public final class GameRenderer {
 
     private final Batch batch;
