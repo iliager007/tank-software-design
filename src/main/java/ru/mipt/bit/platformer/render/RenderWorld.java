@@ -14,6 +14,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Infrastructure: адаптер исходящего порта WorldListener к графической проекции WorldView.
+ */
 public final class RenderWorld implements WorldView, WorldListener, Disposable {
 
     private final ObservableWorld source;

@@ -19,6 +19,7 @@ public final class Tank implements TankView, GameObject {
     private Direction direction = Direction.RIGHT;
     private int health;
     private float shotCooldown;
+    private TankState state;
 
     public Tank(GridPoint2 initialCoordinates, float movementDuration) {
         this(initialCoordinates, movementDuration, 100, BulletSettings.standard());
@@ -34,6 +35,11 @@ public final class Tank implements TankView, GameObject {
         this.health = health;
         this.maxHealth = health;
         this.bulletSettings = Objects.requireNonNull(bulletSettings, "bulletSettings");
+        this.state = TankDamageState.fromHealth(health, maxHealth);
+    }
+
+    public void changeState(TankState state) {
+        this.state = Objects.requireNonNull(state, "state");
     }
 
     public void tryMove(Direction direction, MovementPolicy movementPolicy, WorldView world) {
@@ -52,15 +58,16 @@ public final class Tank implements TankView, GameObject {
     }
 
     public void update(float deltaTime) {
-        shotCooldown = Math.max(0f, shotCooldown - deltaTime);
-        movementProgress = clamp(movementProgress + deltaTime / movementDuration, 0f, 1f);
+        shotCooldown = Math.max(0f, shotCooldown - deltaTime * state.getFireRateMultiplier());
+        movementProgress = clamp(movementProgress + deltaTime * state.getMovementSpeedMultiplier() / movementDuration,
+                0f, 1f);
         if (isMovementComplete()) {
             currentCoordinates.set(destinationCoordinates);
         }
     }
 
     public void shoot(WorldContext world) {
-        if (health < 0 || shotCooldown > movementDuration * 1e-6d || !world.contains(this)) {
+        if (health < 0 || !state.canShoot() || shotCooldown > movementDuration * 1e-6d || !world.contains(this)) {
             return;
         }
         shotCooldown = movementDuration;
@@ -77,6 +84,7 @@ public final class Tank implements TankView, GameObject {
     @Override
     public void hit(Bullet bullet, WorldContext world) {
         health -= bullet.getDamage();
+        changeState(state.onHealthChanged(health, maxHealth));
         if (health < 0) {
             world.removeObject(this);
         }

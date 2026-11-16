@@ -6,6 +6,9 @@ import ru.mipt.bit.platformer.model.WorldSettings;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Infrastructure: разбор внешнего формата уровня для адаптера FileLevelSource.
+ */
 public final class TextLevelParser {
 
     private final float tankMovementDuration;

@@ -13,6 +13,9 @@ import ru.mipt.bit.platformer.util.TileMovement;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 
+/**
+ * Infrastructure: компонент графического адаптера, отображающий BulletView средствами libGDX.
+ */
 public final class BulletRenderer implements WorldRenderLayer {
 
     private final Texture texture;

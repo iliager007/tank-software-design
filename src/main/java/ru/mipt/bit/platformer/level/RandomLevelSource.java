@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * Application: локальный адаптер LevelSource, генерирующий определение уровня.
+ */
 public final class RandomLevelSource implements LevelSource {
 
     private final int width;

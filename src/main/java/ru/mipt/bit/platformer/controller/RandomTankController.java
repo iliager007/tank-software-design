@@ -12,6 +12,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
+/**
+ * Application: локальный адаптер порта TankController со случайным выбором команд.
+ */
 public final class RandomTankController implements TankController {
 
     private final Random random;

@@ -12,6 +12,9 @@ import ru.mipt.bit.platformer.util.TileMovement;
 
 import static com.badlogic.gdx.math.MathUtils.clamp;
 
+/**
+ * Infrastructure: декоратор графического адаптера, отображающий здоровье танков.
+ */
 public final class HealthBarRenderer implements WorldRenderLayer {
 
     private static final float WIDTH = 64f;

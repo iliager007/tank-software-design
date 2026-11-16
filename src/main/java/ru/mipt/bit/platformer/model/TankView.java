@@ -2,6 +2,9 @@ package ru.mipt.bit.platformer.model;
 
 import com.badlogic.gdx.math.GridPoint2;
 
+/**
+ * Domain: контракт чтения танка в составе порта WorldView.
+ */
 public interface TankView extends GameObjectView {
 
     int getHealth();

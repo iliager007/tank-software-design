@@ -12,6 +12,9 @@ import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.moveRectangleAtTileCenter;
 
+/**
+ * Infrastructure: компонент графического адаптера, отображающий ObstacleView средствами libGDX.
+ */
 public final class ObstacleRenderer implements WorldRenderLayer {
 
     private final TiledMapTileLayer groundLayer;
